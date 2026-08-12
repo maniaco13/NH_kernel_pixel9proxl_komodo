@@ -12,14 +12,11 @@ jobs:
       - name: Build Kernel
         uses: actions/android-kernel-build-action@v1
         with:
-          arch: arm64
-          android-version: 14
-          # We will put the Pixel 9 Pro XL source URL here
-          kernel-url: 'GOOGLE_KERNEL_URL'
-          kernel-branch: 'YOUR_KERNEL_BRANCH'
-          config: defconfig
-          # Enable KernelSU
-          ksu: true
-          # Enable Kali NetHunter and required patches
-          nethunter: true
-          nethunter-patch: true
+      arch: arm64
+      android-version: 14
+      kernel-url: 'https://android.googlesource.com/kernel/common'
+      kernel-branch: 'android14-6.1'
+      config: defconfig
+      ksu: true
+      nethunter: true
+      nethunter-patch: true
