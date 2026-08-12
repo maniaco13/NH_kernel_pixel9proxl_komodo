@@ -1,0 +1,25 @@
+name: Build Custom Kernel
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Build Kernel
+        uses: actions/android-kernel-build-action@v1
+        with:
+          arch: arm64
+          android-version: 14
+          # We will put the Pixel 9 Pro XL source URL here
+          kernel-url: 'GOOGLE_KERNEL_URL'
+          kernel-branch: 'YOUR_KERNEL_BRANCH'
+          config: defconfig
+          # Enable KernelSU
+          ksu: true
+          # Enable Kali NetHunter and required patches
+          nethunter: true
+          nethunter-patch: true
