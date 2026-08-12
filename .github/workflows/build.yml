@@ -12,11 +12,11 @@ jobs:
       - name: Build Kernel
         uses: actions/android-kernel-build-action@v1
         with:
-      arch: arm64
-      android-version: 14
-      kernel-url: 'https://android.googlesource.com/kernel/common'
-      kernel-branch: 'android14-6.1'
-      config: defconfig
-      ksu: true
-      nethunter: true
-      nethunter-patch: true
+          arch: arm64
+          android-version: 14
+          kernel-url: 'https://android.googlesource.com/kernel/common'
+          kernel-branch: 'android14-6.1'
+          config: defconfig
+          ksu: true
+          nethunter: true
+          nethunter-patch: true
