@@ -12,9 +12,11 @@ jobs:
       - name: Prepare Container Environment
         run: |
           apt-get update
-          apt-get install -y --no-install-recommends sudo git tzdata python3.9 ca-certificates
+          apt-get install -y --no-install-recommends sudo git tzdata ca-certificates software-properties-common gnupg
+          add-apt-repository ppa:deadsnakes/ppa -y
+          apt-get install -y --no-install-recommends python3.10
           dpkg-divert --divert /usr/bin/python3.original --rename /usr/bin/python3
-          ln -sf /usr/bin/python3.9 /usr/bin/python3
+          ln -sf /usr/bin/python3.10 /usr/bin/python3
 
       - name: Checkout Code
         uses: actions/checkout@v4
