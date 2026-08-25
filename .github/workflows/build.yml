@@ -13,7 +13,8 @@ jobs:
         run: |
           apt-get update
           apt-get install -y --no-install-recommends sudo git tzdata python3.9 ca-certificates
-          update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 2
+          dpkg-divert --divert /usr/bin/python3.original --rename /usr/bin/python3
+          ln -sf /usr/bin/python3.9 /usr/bin/python3
 
       - name: Checkout Code
         uses: actions/checkout@v4
