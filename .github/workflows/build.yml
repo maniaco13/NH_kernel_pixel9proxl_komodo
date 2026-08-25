@@ -19,4 +19,4 @@ jobs:
           config: defconfig
           ksu: true
           nethunter: true
-          nethunter-patch: true
+          nethunter-patch: false
