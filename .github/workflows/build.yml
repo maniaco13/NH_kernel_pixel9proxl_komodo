@@ -9,11 +9,12 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Downgrade OpenSSL (Fix for extract-cert.c)
+      - name: Lock OpenSSL 1.1 (Block Action from Upgrading)
         run: |
           wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb
           wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl-dev_1.1.1f-1ubuntu2_amd64.deb
           sudo dpkg --force-all -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb libssl-dev_1.1.1f-1ubuntu2_amd64.deb
+          sudo apt-mark hold libssl-dev libssl1.1
 
       - name: Build Kernel
         uses: dabao1955/kernel_build_action@main
