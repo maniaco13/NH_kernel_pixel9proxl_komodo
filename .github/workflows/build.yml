@@ -6,11 +6,13 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     container: ubuntu:20.04
+    env:
+      DEBIAN_FRONTEND: noninteractive
     steps:
       - name: Prepare Container Environment
         run: |
           apt-get update
-          apt-get install -y sudo git
+          apt-get install -y sudo git tzdata
 
       - name: Checkout Code
         uses: actions/checkout@v4
