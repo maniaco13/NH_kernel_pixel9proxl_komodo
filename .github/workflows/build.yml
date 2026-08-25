@@ -12,9 +12,16 @@ jobs:
     steps:
       - name: Prepare Container Environment
         run: |
+          # 1. Update and install prerequisites for adding repositories
           apt-get update
           apt-get install -y --no-install-recommends \
-            software-properties-common gnupg sudo git tzdata ca-certificates \
+            software-properties-common gnupg sudo git tzdata ca-certificates
+
+          # 2. Add the Python repository
+          add-apt-repository ppa:deadsnakes/ppa -y
+
+          # 3. Install all dependencies, including Python 3.10
+          apt-get install -y --no-install-recommends \
             binutils make bc bison openssl curl zip kmod cpio flex libelf-dev libssl-dev libtfm-dev libc6-dev \
             device-tree-compiler python3 xz-utils aria2 build-essential ccache pigz parallel jq opam libpcre3-dev \
             clang lld \
@@ -22,6 +29,7 @@ jobs:
             binutils-arm-linux-gnueabihf gcc-arm-linux-gnueabihf \
             python3.10
 
+          # 4. Switch Python version
           update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1
           update-alternatives --install /usr/bin/python python /usr/bin/python3.10 1
 
