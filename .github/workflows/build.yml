@@ -12,7 +12,7 @@ jobs:
       - name: Prepare Container Environment
         run: |
           apt-get update
-          apt-get install -y --no-install-recommends sudo git tzdata python3.9
+          apt-get install -y --no-install-recommends sudo git tzdata python3.9 ca-certificates
           update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 2
 
       - name: Checkout Code
