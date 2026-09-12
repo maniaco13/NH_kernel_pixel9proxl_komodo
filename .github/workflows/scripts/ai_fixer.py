@@ -1,6 +1,6 @@
-# scripts/ai_fixer.py
 import os
 import subprocess
+import re
 import google.generativeai as genai
 
 # Configure Gemini API
@@ -31,29 +31,36 @@ Error Logs:
 
 print("Asking Gemini for a code patch...")
 response = model.generate_content(prompt)
-patch_content = response.text.strip()
+raw_text = response.text.strip()
 
-# Clean up potential markdown formatting if Gemini includes them anyway
-if patch_content.startswith("```diff"):
-    patch_content = patch_content[7:]
-elif patch_content.startswith("```"):
-    patch_content = patch_content[3:]
-if patch_content.endswith("```"):
-    patch_content = patch_content[:-3]
-patch_content = patch_content.strip()
+# Smart extraction: Hunt for code blocks first, regardless of extra conversational text
+match = re.search(r'```(?:diff|patch)?\n(.*?)\n```', raw_text, re.DOTALL)
+if match:
+    patch_content = match.group(1).strip()
+else:
+    # Fallback to the whole text if no markdown blocks are found
+    patch_content = raw_text
 
-if "diff --git" in patch_content:
+# Loosen the strict requirement: check for either 'diff --git' or standard '---' and '+++' markers
+if "diff --git" in patch_content or ("--- " in patch_content and "+++ " in patch_content):
     with open("kernel_fix.patch", "w", encoding="utf-8") as f:
         f.write(patch_content)
     
     print("Applying patch...")
     try:
+        # First attempt: git apply (strict)
         subprocess.run(["git", "apply", "kernel_fix.patch"], check=True)
-        print("Patch applied successfully!")
+        print("Patch applied successfully with git apply!")
     except subprocess.CalledProcessError as e:
-        print(f"Failed to apply patch automatically: {e}")
-        exit(1)
+        print(f"git apply failed, trying standard patch command... ({e})")
+        try:
+            # Second attempt: standard patch (forgiving)
+            subprocess.run(["patch", "-p1", "-i", "kernel_fix.patch"], check=True)
+            print("Patch applied successfully using standard patch command!")
+        except subprocess.CalledProcessError as e2:
+            print(f"Failed to apply patch automatically: {e2}")
+            exit(1)
 else:
-    print("Gemini did not return a valid diff format.")
+    print("Gemini did not return a recognizable diff or patch format.")
     print("AI Response was:\n", patch_content)
     exit(1)
