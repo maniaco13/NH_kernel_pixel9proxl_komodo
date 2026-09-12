@@ -21,7 +21,7 @@ jobs:
         run: |
           echo "-ManiacDragon" > localversion-maniac
 
-      - name: Enable RTL-SDR and Advanced Pentesting Configs
+      - name: Enable RTL-SDR and Advanced Hardware Configs
         run: |
           CONFIG_PATH=$(find . -name "*defconfig" | head -n 1)
           if [ -f "$CONFIG_PATH" ]; then
@@ -73,7 +73,6 @@ jobs:
       - name: Build Kernel
         id: kernel_build
         uses: dabao1955/kernel_build_action@main
-        continue-on-error: true
         with:
           arch: arm64
           android-version: 14
@@ -82,16 +81,17 @@ jobs:
           config: gki_defconfig
           ksu: true
           nethunter: true
-          nethunter-patch: true
+          nethunter-patch: false
           ccache: true
           anykernel3: true
 
       - name: Package Complete Recovery-Ready Zip with ManiacDragon Name
         run: |
           git clone https://github.com/osm0sis/AnyKernel3 -b master ak3
-          rm -rf ak3/.git ak3/anykernel.sh ak3/LICENSE
-          find . -maxdepth 3 -name "Image.gz" -exec cp {} ak3/ \;
-          find . -maxdepth 3 -name "anykernel.sh" -exec cp {} ak3/ \;
+          rm -rf ak3/.git ak3/LICENSE
+          
+          find . -maxdepth 3 -name "Image.gz" -exec cp {} ak3/ \; || true
+          find . -maxdepth 3 -name "anykernel.sh" -exec cp {} ak3/ \; || true
           
           sed -i 's/kernel.string=.*/kernel.string=ManiacDragon-PixelKernel/g' ak3/anykernel.sh
           
@@ -104,10 +104,6 @@ jobs:
         with:
           name: ManiacDragon-Flashable-Kernel
           path: ManiacDragon-Kernel-Flashable.zip
-
-      - name: Fail explicitly if build failed
-        if: steps.kernel_build.outcome == 'failure'
-        run: exit 1
 
   self-heal-patch:
     needs: build
