@@ -104,7 +104,7 @@ jobs:
       - name: Run AI Agent Fixer
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python3 scripts/ai_fixer.py
+        run: python3 .github/workflows/scripts/ai_fixer.py
 
       - name: Create Pull Request with AI Fix
         env:
