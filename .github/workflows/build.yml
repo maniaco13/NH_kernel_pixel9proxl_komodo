@@ -62,7 +62,6 @@ jobs:
           ksu: true
           nethunter: true
           nethunter-patch: false
-          parallel: 4
           ccache: true
 
       - name: Upload Kernel Artifacts
