@@ -17,6 +17,10 @@ jobs:
       - name: Checkout Kernel Source
         uses: actions/checkout@v4
 
+      - name: Set Custom Kernel Version Name
+        run: |
+          echo "-ManiacoDragon" > localversion-custom
+
       - name: Set Up Cache Key (ccache)
         id: cache
         run: |
@@ -69,6 +73,26 @@ jobs:
           nethunter-patch: false
           ccache: true
           anykernel3: true
+
+      - name: Package Complete Recovery-Ready Zip with Custom Name
+        run: |
+          git clone https://github.com/osm0sis/AnyKernel3 -b master ak3
+          rm -rf ak3/.git ak3/anykernel.sh ak3/LICENSE
+          find . -maxdepth 3 -name "Image.gz" -exec cp {} ak3/ \;
+          find . -maxdepth 3 -name "anykernel.sh" -exec cp {} ak3/ \;
+          
+          # Inject custom kernel string name into anykernel.sh
+          sed -i 's/kernel.string=.*/kernel.string=Pixel-Komodo-ManiacoDragon/g' ak3/anykernel.sh
+          
+          cd ak3
+          zip -r9 ../AnyKernel3-Flashable.zip *
+          cd ..
+
+      - name: Upload Flashable Zip Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AnyKernel3-Flashable-Kernel
+          path: AnyKernel3-Flashable.zip
 
       - name: Fail explicitly if build failed
         if: steps.kernel_build.outcome == 'failure'
