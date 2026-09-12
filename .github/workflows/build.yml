@@ -68,6 +68,7 @@ jobs:
           nethunter: true
           nethunter-patch: false
           ccache: true
+          anykernel3: true
 
       - name: Fail explicitly if build failed
         if: steps.kernel_build.outcome == 'failure'
