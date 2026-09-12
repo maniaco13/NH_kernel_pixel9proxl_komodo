@@ -1,4 +1,4 @@
-name: Build Custom Kernel
+name: Build Custom Kernel - ManiacDragon
 
 on:
   workflow_dispatch:
@@ -19,7 +19,19 @@ jobs:
 
       - name: Set Custom Kernel Version Name
         run: |
-          echo "-ManiacoDragon" > localversion-custom
+          echo "-ManiacDragon" > localversion-maniac
+
+      - name: Enable RTL-SDR and Advanced Pentesting Configs
+        run: |
+          CONFIG_PATH=$(find . -name "*defconfig" | head -n 1)
+          if [ -f "$CONFIG_PATH" ]; then
+            echo "Injecting flags into $CONFIG_PATH"
+            echo "CONFIG_DVB_CORE=y" >> "$CONFIG_PATH"
+            echo "CONFIG_DVB_USB=y" >> "$CONFIG_PATH"
+            echo "CONFIG_DVB_USB_RTL28XXU=y" >> "$CONFIG_PATH"
+            echo "CONFIG_USB_NET_CDCETHER=y" >> "$CONFIG_PATH"
+            echo "CONFIG_CFG80211_INTERNAL_REG_RULE=y" >> "$CONFIG_PATH"
+          fi
 
       - name: Set Up Cache Key (ccache)
         id: cache
@@ -70,29 +82,28 @@ jobs:
           config: gki_defconfig
           ksu: true
           nethunter: true
-          nethunter-patch: false
+          nethunter-patch: true
           ccache: true
           anykernel3: true
 
-      - name: Package Complete Recovery-Ready Zip with Custom Name
+      - name: Package Complete Recovery-Ready Zip with ManiacDragon Name
         run: |
           git clone https://github.com/osm0sis/AnyKernel3 -b master ak3
           rm -rf ak3/.git ak3/anykernel.sh ak3/LICENSE
           find . -maxdepth 3 -name "Image.gz" -exec cp {} ak3/ \;
           find . -maxdepth 3 -name "anykernel.sh" -exec cp {} ak3/ \;
           
-          # Inject custom kernel string name into anykernel.sh
-          sed -i 's/kernel.string=.*/kernel.string=Pixel-Komodo-ManiacoDragon/g' ak3/anykernel.sh
+          sed -i 's/kernel.string=.*/kernel.string=ManiacDragon-PixelKernel/g' ak3/anykernel.sh
           
           cd ak3
-          zip -r9 ../AnyKernel3-Flashable.zip *
+          zip -r9 ../ManiacDragon-Kernel-Flashable.zip *
           cd ..
 
       - name: Upload Flashable Zip Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: AnyKernel3-Flashable-Kernel
-          path: AnyKernel3-Flashable.zip
+          name: ManiacDragon-Flashable-Kernel
+          path: ManiacDragon-Kernel-Flashable.zip
 
       - name: Fail explicitly if build failed
         if: steps.kernel_build.outcome == 'failure'
