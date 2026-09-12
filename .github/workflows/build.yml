@@ -25,16 +25,12 @@ jobs:
         with:
           path: ~/.ccache
           key: ${{ steps.cache.outputs.cache-key }}
-          # Use a fixed cache if key misses (e.g. for PRs)
           restore-keys: |
             setup-cache-${{ runner.os }}-ccache-kernel
 
       - name: Update & Install Build Dependencies
         run: |
-          # Update package list
           sudo apt-get update
-
-          # Install required packages (native on ubuntu-22.04)
           sudo apt-get install -y --no-install-recommends \
             git build-essential bc bison flex libssl-dev libelf-dev \
             libpcre3-dev libc6-dev libtfm-dev \
@@ -46,13 +42,11 @@ jobs:
             binutils-aarch64-linux-gnu binutils-arm-linux-gnueabihf \
             ccache pigz parallel jq aria2 tzdata curl ca-certificates gnupg
 
-          # Ensure python3 points to python3.10
           sudo update-alternatives \
             --install /usr/bin/python3 python3 /usr/bin/python3.10 1
           sudo update-alternatives \
             --install /usr/bin/python python /usr/bin/python3.10 1
 
-          # Confirm ccache is in PATH and working
           export PATH="/usr/lib/ccache:$PATH"
           echo "ccache in PATH: $(which ccache)"
           ccache --show-stats || true
@@ -69,7 +63,6 @@ jobs:
           nethunter: true
           nethunter-patch: false
           parallel: 4
-          # Ensure kernel build uses ccache
           ccache: true
 
       - name: Upload Kernel Artifacts
@@ -87,3 +80,15 @@ jobs:
         run: |
           echo "✅ Build completed successfully!"
           ccache --show-stats || true
+
+  analyze-failure:
+    needs: build
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Analyze Build Failure with Gemini AI
+        uses: calebevans/gha-failure-analysis@v1
+        with:
+          llm-provider: 'gemini'
+          llm-model: 'gemini-2.5-flash'
+          llm-api-key: ${{ secrets.GEMINI_API_KEY }}
